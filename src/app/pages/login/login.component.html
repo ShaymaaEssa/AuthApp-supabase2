@@ -1,0 +1,92 @@
+<section>
+    <div class="mx-[20px] my-[20px] flex flex-col gap-4">
+        <div class="flex flex-row justify-between items-center">
+            <h1 class="text-[30px] text-red-700 font-bold font-sans">Authentication App</h1>
+            <div class="flex flex-row justify-center items-center gap-3">
+                <p class="text-blue-800">Don't have an account?</p>
+                <button class="py-3 px-6 border border-[#CD812F] hover:bg-[#CD812F] text-[#CD812F] hover:text-white rounded-lg" routerLink="/register">Register</button>
+            </div>            
+        </div>
+
+        <p class="text-[#CD812F] text-[25px] pt-[20px] font-bold">Enter with your account.</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="submitForm()">
+
+          
+              <div class="mb-5">
+                @let emailControl = loginForm.get('email');
+                <label
+                
+                  for="email"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize"
+                  >email</label
+                >
+                <input
+                formControlName="email"
+                  type="email"
+                  id="email"
+                  class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                />
+
+                @if (emailControl?.errors && emailControl?.touched) {
+                    <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <svg class="shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                        </svg>
+                        <span class="sr-only">Danger</span>
+                        <div>
+                            <ul class="mt-1.5 list-disc list-inside">
+                              @if(emailControl?.getError('required')){
+                                <li>Email is required</li>
+                              }
+                              @else if (emailControl?.getError('email')) {
+                                <li>Email is not valid</li>
+                              }
+                          </ul>
+                        </div>
+                      </div>
+            
+                  }
+
+              </div>
+          
+              <div class="mb-5">
+                @let passwordControl = loginForm.get('password');
+                <label
+                  for="password"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize"
+                  >password</label
+                >
+                <input
+                formControlName="password"
+                  type="password"
+                  id="password"
+                  class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                />
+
+                @if (passwordControl?.errors && passwordControl?.touched) {
+                    <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <svg class="shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                        </svg>
+                        <span class="sr-only">Danger</span>
+                        <div>
+                            <ul class="mt-1.5 list-disc list-inside">
+                              @if(passwordControl?.getError('required')){
+                                <li>password is required</li>
+                              }
+                              @else if (passwordControl?.getError('pattern')) {
+                                <li>password is not valid</li>
+                              }
+                          </ul>
+                        </div>
+                      </div>
+            
+                  }
+              </div>
+
+          
+              <button class="btn-main w-full border border-[#CD812F] text-[#CD812F] font-bold text-[25px] rounded-xl py-2 hover:bg-[#CD812F] hover:text-white" type="submit">Login</button>
+        </form>
+    </div>
+</section>
