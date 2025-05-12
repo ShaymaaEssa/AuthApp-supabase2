@@ -54,4 +54,7 @@ export class SupabaseService {
     )
 
   }
+
+
+  // uploadAvatarDB()
 }

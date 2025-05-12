@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { RouterLink,Router } from '@angular/router';
+import { userToken } from '../../core/environment/environment';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class LoginComponent {
           next:(user)=>{
             if(user){
               alert(`Successful login!`);
-              localStorage.setItem("userToke", JSON.stringify( user));
+              localStorage.setItem(userToken.token, JSON.stringify( user));
               setTimeout(()=>{
                 //navigate login path
               this.router.navigate(['/home']);

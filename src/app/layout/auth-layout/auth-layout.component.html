@@ -1,0 +1,14 @@
+<div class="flex flex-col min-h-screen">
+  <section class="flex items-center justify-center min-h-screen">
+      <div class="grid md:grid-cols-2 lg:grid-cols-[50%_minmax(0,1fr)] w-full h-screen">
+          
+          <div class="formContainer h-screen overflow-auto">
+              <router-outlet></router-outlet>
+          </div>
+
+          <div class="img h-screen overflow-hidden carouselContainer hidden items-center justify-center md:flex">
+            <img src="/images/1.jpg" alt="" class="w-full h-full ">
+          </div>
+      </div>
+  </section>
+</div>
