@@ -28,14 +28,15 @@ export class AvatarComponent {
       const userId = JSON.parse( user).id;
       const filePath = `${userId}/${file.name}`;
       console.log(`filepath:${filePath}`)
-      this.supabaseService.uploadAvatarDB(file, filePath).subscribe({
-        next:(response)=>{
-          console.log('Upload successful:', response);
-        }, 
-        error:(error)=>{
-          console.error('Upload failed:', error.message);
-        }
-      })
+      this.supabaseService.uploadAvatarDB(file, filePath);
+      // this.supabaseService.uploadAvatarDB(file, filePath).subscribe({
+      //   next:(response)=>{
+      //     console.log('Upload successful:', response);
+      //   }, 
+      //   error:(error)=>{
+      //     console.error('Upload failed:', error.message);
+      //   }
+      // })
     }
 
   }
