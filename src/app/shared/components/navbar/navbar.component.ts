@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { FlowbiteService } from '../../../core/services/flowbite.service';
 import { initFlowbite } from 'flowbite';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
+  imports: [RouterOutlet],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -16,6 +17,7 @@ export class NavbarComponent {
       //Add 'implements OnInit' to the class.
       this.flowbiteService.loadFlowbite((flowbite) => {
         initFlowbite();
+        
       });
   
     }

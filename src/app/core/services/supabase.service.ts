@@ -56,5 +56,16 @@ export class SupabaseService {
   }
 
 
-  // uploadAvatarDB()
+  uploadAvatarDB(file:File, filePath:string):Observable<any>{
+    const upload$ = from(this.supabase.storage
+                          .from('avatars')
+                          .upload(filePath, file, {
+                            cacheControl:'3600', // tells the browser how long (in seconds) it can cache the file
+                            upsert:true //if a file with the same name already exists at that location, it replaces it
+                          })
+    );
+
+    return upload$;
+
+  }
 }

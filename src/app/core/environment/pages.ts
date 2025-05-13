@@ -1,6 +1,7 @@
 export const pages = {
     Login:'login',
     Register:'register',
-    Home:'home'
+    Home:'home',
+    Avatar:'avatar'
     
 } as const
