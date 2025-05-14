@@ -1,9 +1,10 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../environment/environment';
 import { isPlatformBrowser } from '@angular/common';
 import { IUser } from '../../shared/interfaces/iuser';
-import { catchError, from, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, from, map, Observable, of, tap } from 'rxjs';
+import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +13,58 @@ export class SupabaseService {
 
   private supabase!: SupabaseClient;
   private readonly ID = inject(PLATFORM_ID);
+  private currentUser = new BehaviorSubject<User | null>(null);
   constructor() {
     if (isPlatformBrowser(this.ID)) {
       this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
-
     }
+
+    // Check for existing session on service initialization
+    this.checkCurrentSession();
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        this.currentUser.next(session.user);
+      } else {
+        this.currentUser.next(null);
+      }
+    });
+
+  }
+
+  private checkCurrentSession():void{
+    from( this.supabase.auth.getSession()).pipe(
+      map(response => response.data.session?.user || null),
+      catchError(error => {
+        console.error('Session check failed', error);
+        return of(null); // Fallback to "not logged in" state
+      })
+    ).subscribe(user => {
+      this.currentUser.next(user);
+    })
+  }
+
+  signup(email:string, password:string):Observable<void>{
+    return from (this.supabase.auth.signUp({email, password})).pipe(
+      tap(response=> {
+        if(response.data.user) {
+          this.currentUser.next(response.data.user);
+        }
+      }),
+      map(() => {}) // Convert to void observable
+    )
+  }
+
+  pdateProfile(profile: any): Observable<void> {
+    return from(this.supabase
+      .from('profiles')
+      .update(profile)
+      .eq('id', profile.id)
+    ).pipe(
+      map(response => {
+        if (response.error) throw response.error;
+        return;
+      })
+    );
   }
 
   async insertUser(userData: IUser) {
