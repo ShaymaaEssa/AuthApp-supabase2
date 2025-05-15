@@ -28,21 +28,10 @@ export class RegisterComponent {
   
   }
 
-  async submitForm(){
-    try {
-      console.log("Hello from submit form!")
-      const result = await this.supabaseService.insertUser(this.registerForm.value);
-      console.log('User inserted:', result);
-      alert("User created successfully!");
-    } catch (err) {
-      if (err instanceof Error) {
-        alert(err.message);
-        console.log('Error inserting user:', err);
-      } else {
-        alert('An unexpected error occurred');
-        console.log('Unknown error:', err);
-      }
-    }
+  submitForm(){
+    this.supabaseService.updateProfile(this.registerForm.value).subscribe({
+      
+    })
   }
 
 }

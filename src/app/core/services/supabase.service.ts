@@ -3,7 +3,7 @@ import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../environment/environment';
 import { isPlatformBrowser } from '@angular/common';
 import { IUser } from '../../shared/interfaces/iuser';
-import { BehaviorSubject, catchError, from, map, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { response } from 'express';
 
 @Injectable({
@@ -43,18 +43,39 @@ export class SupabaseService {
     })
   }
 
-  signup(email:string, password:string):Observable<void>{
-    return from (this.supabase.auth.signUp({email, password})).pipe(
-      tap(response=> {
-        if(response.data.user) {
-          this.currentUser.next(response.data.user);
+  signup(userProfile:IUser): Observable<void> {
+    return from(
+      this.supabase.auth.signUp({email: userProfile.email,
+      password: userProfile.password,
+      options: {
+        data: {
+          name: userProfile.name,
+          phone: userProfile.phone
+        }}
+      )
+    ).pipe(
+      switchMap((response) => {
+        if (response.error) {
+          throw response.error;
+        }
+        const user = response.data.user;
+        if (!user) {
+          throw new Error('User signup failed');
+        }
+        return from(
+          this.supabase.from('profiles').update({ userProfile.name, userProfile.phone }).eq('id', user.id)
+        );
+      }),
+      tap((result) => {
+        if (result.error) {
+          throw result.error;
         }
       }),
-      map(() => {}) // Convert to void observable
-    )
+      map(() => {})
+    );
   }
 
-  pdateProfile(profile: any): Observable<void> {
+  updateProfile(profile: any): Observable<void> {
     return from(this.supabase
       .from('profiles')
       .update(profile)
