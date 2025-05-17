@@ -1,9 +1,9 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { AuthError, createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../environment/environment';
 import { isPlatformBrowser } from '@angular/common';
 import { IUser } from '../../shared/interfaces/iuser';
-import { BehaviorSubject, catchError, from, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, from, map, Observable, of, retry, switchMap, tap } from 'rxjs';
 import { response } from 'express';
 
 @Injectable({
@@ -31,6 +31,45 @@ export class SupabaseService {
 
   }
 
+  private getClient(){
+    return this.supabase;
+  }
+
+  registerUser(userData:IUser):Observable<any>{
+    return from (this.supabase.auth.signUp({
+      email: userData.email, 
+      password: userData.password
+    }).then(async (authResponse)=>{
+      if(authResponse.error) throw authResponse.error;
+
+      // Add debug logs
+        console.log('Auth user ID:', authResponse.data.user?.id);
+        console.log('Profile data:', {
+          id: authResponse.data.user?.id,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone,
+        });
+
+
+      //insert into profiles table
+      const{data, error}= await this.supabase
+                                .from ('profiles')
+                                .insert([{
+                                  id: authResponse.data.user?.id,
+                                  name: userData.name,
+                                  email: userData.email,
+                                  phone: userData.phone,
+                                }]);
+
+      if(error) {
+         console.error('Database error details:', error);
+         throw error;
+      }
+      return data;
+    }))
+  }
+
   private checkCurrentSession():void{
     from( this.supabase.auth.getSession()).pipe(
       map(response => response.data.session?.user || null),
@@ -43,37 +82,37 @@ export class SupabaseService {
     })
   }
 
-  signup(userProfile:IUser): Observable<void> {
-    return from(
-      this.supabase.auth.signUp({email: userProfile.email,
-      password: userProfile.password,
-      options: {
-        data: {
-          name: userProfile.name,
-          phone: userProfile.phone
-        }}
-      )
-    ).pipe(
-      switchMap((response) => {
-        if (response.error) {
-          throw response.error;
-        }
-        const user = response.data.user;
-        if (!user) {
-          throw new Error('User signup failed');
-        }
-        return from(
-          this.supabase.from('profiles').update({ userProfile.name, userProfile.phone }).eq('id', user.id)
-        );
-      }),
-      tap((result) => {
-        if (result.error) {
-          throw result.error;
-        }
-      }),
-      map(() => {})
-    );
-  }
+  // signup(userProfile:IUser): Observable<void> {
+  //   return from(
+  //     this.supabase.auth.signUp({email: userProfile.email,
+  //     password: userProfile.password,
+  //     options: {
+  //       data: {
+  //         name: userProfile.name,
+  //         phone: userProfile.phone
+  //       }}
+  //     )
+  //   ).pipe(
+  //     switchMap((response) => {
+  //       if (response.error) {
+  //         throw response.error;
+  //       }
+  //       const user = response.data.user;
+  //       if (!user) {
+  //         throw new Error('User signup failed');
+  //       }
+  //       return from(
+  //         this.supabase.from('profiles').update({ userProfile.name, userProfile.phone }).eq('id', user.id)
+  //       );
+  //     }),
+  //     tap((result) => {
+  //       if (result.error) {
+  //         throw result.error;
+  //       }
+  //     }),
+  //     map(() => {})
+  //   );
+  // }
 
   updateProfile(profile: any): Observable<void> {
     return from(this.supabase

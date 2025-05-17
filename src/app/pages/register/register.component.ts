@@ -1,7 +1,9 @@
+
 import { Component, inject } from '@angular/core';
 import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms'
 import { SupabaseService } from '../../core/services/supabase.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -12,6 +14,7 @@ import { RouterLink } from '@angular/router';
 export class RegisterComponent {
 
   private readonly supabaseService = inject(SupabaseService);
+  private readonly router = inject(Router);
 
   registerForm : FormGroup = new FormGroup({
     name: new FormControl(null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]), 
@@ -29,9 +32,26 @@ export class RegisterComponent {
   }
 
   submitForm(){
-    this.supabaseService.updateProfile(this.registerForm.value).subscribe({
-      
-    })
+
+    if(this.registerForm.invalid){
+      alert('fix form errors!');
+      return;
+    }
+
+    this.supabaseService.registerUser(this.registerForm.value)
+                        .pipe(take(1))
+                        .subscribe({
+                          next:(data)=>{
+                            alert("Account Created Successfully!");
+                            this.registerForm.reset();
+                              setTimeout(() => {
+                               this.router.navigate(['/login']);
+                               }, 2000);
+                          }, 
+                          error:(err)=>{
+                            alert(`Error: ${err.message}`);
+                          }
+                        })
   }
 
 }
