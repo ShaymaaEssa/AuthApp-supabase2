@@ -23,38 +23,12 @@ export class LoginComponent {
   })
 
   submitForm(){
-    try{
-      console.log("hello from login submit form!");
-      const result =  this.supabaseService.selectUser(this.loginForm.value).subscribe(
-        {
-          next:(user)=>{
-            if(user){
-              alert(`Successful login!`);
-              localStorage.setItem(userToken.token, JSON.stringify( user));
-              setTimeout(()=>{
-                //navigate login path
-              this.router.navigate(['/home']);
-              }, 1000)
-            }else{
-              alert('Invalid email or password!')
-            }
-          },
-          error: (err) => {
-            console.error('Login error:', err);
-            alert( 'Login failed. Please try again.');
-          }
-        }
-      );
-      
-
-    } catch(error){
-      if(error instanceof Error){
-        alert(error.message);
-        console.log('Error inserting user:', error);
-      } else{
-        alert('An unexpected error occurred');
-        console.log('Unknown error:', error);
-      }
+    if(this.loginForm.invalid) {
+      alert("Fix Form Error!");
+      return;
     }
-  }
+
+    this.supabaseService.loginUser(this.loginForm.value).subscribe({
+      next:(res)=>{}
+    })
 }

@@ -70,6 +70,15 @@ export class SupabaseService {
     }))
   }
 
+  loginUser(userData:IUser):Observable<any>{
+    return from (this.supabase.auth.signInWithPassword({
+      email:userData.email,
+      password:userData.password
+    }))
+  }
+  
+  
+  
   private checkCurrentSession():void{
     from( this.supabase.auth.getSession()).pipe(
       map(response => response.data.session?.user || null),
