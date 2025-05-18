@@ -31,4 +31,5 @@ export class LoginComponent {
     this.supabaseService.loginUser(this.loginForm.value).subscribe({
       next:(res)=>{}
     })
+  }
 }
