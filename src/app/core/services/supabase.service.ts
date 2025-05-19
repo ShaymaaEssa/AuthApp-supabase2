@@ -5,6 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { IUser } from '../../shared/interfaces/iuser';
 import { BehaviorSubject, catchError, from, map, Observable, of, retry, switchMap, tap } from 'rxjs';
 import { response } from 'express';
+import { error } from 'node:console';
 
 @Injectable({
   providedIn: 'root'
@@ -74,6 +75,18 @@ export class SupabaseService {
     return from (this.supabase.auth.signInWithPassword({
       email:userData.email,
       password:userData.password
+    }).then(async (authResponse)=>{
+      if(authResponse.error) throw authResponse.error;
+
+      const {data:profileData, error:profileError} = await this.supabase
+                                                            .from('profiles')
+                                                            .select('name')
+                                                            .eq('id',authResponse.data.user?.id)
+                                                            .single();
+
+      if (profileError) throw profileError;
+      console.log({ auth: authResponse.data, profile: profileData });
+      return { auth: authResponse.data, profile: profileData };
     }))
   }
   

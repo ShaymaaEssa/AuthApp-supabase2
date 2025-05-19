@@ -3,7 +3,9 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { RouterLink,Router } from '@angular/router';
-import { userToken } from '../../core/environment/environment';
+import { environment, userToken } from '../../core/environment/environment';
+import { take } from 'rxjs';
+
 
 
 @Component({
@@ -28,8 +30,16 @@ export class LoginComponent {
       return;
     }
 
-    this.supabaseService.loginUser(this.loginForm.value).subscribe({
-      next:(res)=>{}
+    this.supabaseService.loginUser(this.loginForm.value)
+    .pipe(take(1))
+    .subscribe({
+      next:(res)=>{
+        localStorage.setItem(userToken.token, res.profile.name)
+        this.router.navigate(['/home']);
+      }, 
+      error:(err)=>{
+        alert(`Error: ${err.message}`);
+      }
     })
   }
 }
